@@ -8,17 +8,30 @@ public:
     int number;
     string subject;
     string content;
-    string status;
-    Task (int e,string a,string b,string c):number(e),subject(a),content(b),status(c){}
+    string status="unfinished";
+    Task (int e,string a,string b):number(e),subject(a),content(b){}
     void show() const
     {
         cout<<number<<","<<subject<<","<<content<<","<<status<<endl;
     }
     void complete() 
     {
-        status="complete";
+        status="finished";
     }
 };
+
+int if_existed(int x,const vector<Task> &p)
+{
+    for (int i=0;i<p.size();i++)
+            {
+                if (x==p[i].number)
+                {
+                    cout<<x<<" has existed"<<endl;
+                    return 0;
+                }
+            }
+            return 1;
+}
 int main()
 {
     cout<<"=====课程任务管理器====="<<endl;
@@ -38,10 +51,15 @@ int main()
             case 1:
             {
                 int e;
-                string a,b,c;
-                cin>>e>>a>>b>>c;
-                Task t(e,a,b,c);
-                p.push_back(t);
+                cin>>e;
+                string a,b;
+                cin>>a;
+                getline(cin>>ws,b);
+                if (if_existed(e,p))
+                {
+                    Task t(e,a,b);
+                    p.push_back(t);
+                }
                 break;
             }
             case 2:
@@ -57,12 +75,21 @@ int main()
                 int d;
                 cout<<"number:";
                 cin>>d;
-                for (int i=0;i<p.size();i++)
+                bool found = false;
+
+                for (int i = 0; i < p.size(); i++)
                 {
-                    if (d==p[i].number)
+                    if (d == p[i].number)
                     {
                         p[i].complete();
+                        found = true;
+                        break;
                     }
+                }
+
+                if (!found)
+                {
+                    cout << d << " does not exist" << endl;
                 }
 
                 break;
@@ -70,16 +97,26 @@ int main()
             case 4:
             {
                 int f;
-                cout<<"number:";
-                cin>>f;
-                for (int i=0;i<p.size();i++)
+                cout << "number:";
+                cin >> f;
+
+                bool found = false;
+
+                for (int i = 0; i < p.size(); i++)
                 {
-                    if (f==p[i].number)
+                    if (f == p[i].number)
                     {
-                        p.erase(p.begin()+i);
+                        p.erase(p.begin() + i);
+                        found = true;
                         break;
                     }
                 }
+
+                if (!found)
+                {
+                    cout << f << " does not exist" << endl;
+                }
+
                 break;
             }
             case 0:
@@ -88,6 +125,7 @@ int main()
             }
         }
     }
-    return 0;
 }
 //有那个样子了，但是还有一些可以优化，明天继续吧。像完成任务只能一个一个来，可以优化
+//1.不能同时完成任务
+//3,4有问题，要改
