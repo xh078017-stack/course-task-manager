@@ -11,6 +11,7 @@ qt_add_executable(Task
     widget.cpp
     widget.h
     widget.ui
+    Task.h Task.cpp
 )
 
 target_link_libraries(Task

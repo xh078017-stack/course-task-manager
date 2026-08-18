@@ -2,7 +2,8 @@
 #define WIDGET_H
 
 #include <QWidget>
-#include <vector>
+#include <QVector>
+#include "Task.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,10 +19,13 @@ public:
     explicit Widget(QWidget *parent = nullptr);
     ~Widget() override;
     void getTask();
-    // void showcaseTask(vector );
+    void showcaseTask();
+    void finish();
+    void delete_();
     void exit();
 
 private:
     Ui::Widget *ui;
+    QVector<Task> p;
 };
 #endif // WIDGET_H

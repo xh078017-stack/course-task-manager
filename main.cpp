@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <QInputDialog>
+using namespace std;
 
 int main(int argc, char *argv[])
 {
