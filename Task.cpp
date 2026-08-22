@@ -19,5 +19,40 @@ void Task::complete()
 
 void Task::show()
 {
-    qDebug()<<number<<" "<<subject<<" "<<content<<" "<<year<<"-"<<month<<"-"<<day<<" "<<status;
+    qDebug()<<number<<"|"<<subject<<"|"<<content<<"|"<<year<<"-"<<month<<"-"<<day<<"|"<<status;
+}
+
+int Task::get_number()
+{
+    return number;
+}
+
+string Task::get_subject()
+{
+    return subject;
+}
+
+string Task::get_content()
+{
+    return content;
+}
+
+int Task::get_year()
+{
+    return year;
+}
+
+int Task::get_month()
+{
+    return month;
+}
+
+int Task::get_day()
+{
+    return day;
+}
+
+string Task::get_status()
+{
+    return status;
 }

@@ -23,6 +23,7 @@ public:
     void finish();
     void delete_();
     void exit();
+    int if_existed(int x);
 
 private:
     Ui::Widget *ui;

@@ -2,15 +2,42 @@
 #include "ui_widget.h"
 #include <QInputDialog>
 #include <QDir>
-#include <QString>
+#include <string>
 #include <QPushButton>
 #include <QDebug>
 #include <QVector>
+#include <fstream>
 #include "Task.h"
+using namespace std;
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
 {
+    ofstream file("C:/Qt/Qt Project Location/Task/text.txt");
+    string buffer;
+    ifstream fin("text.txt",ios::in);
+    if (fin.is_open()==false)
+    {
+        qDebug()<<"文件不存在，请先创建";
+    }
+
+    while(getline(fin,buffer))
+    {
+        size_t pos1=buffer.find("|");
+        size_t pos2=buffer.find("|",pos1+1);
+        size_t pos3=buffer.find("|",pos2+1);
+        size_t pos4=buffer.find("-",pos3+1);
+        size_t pos5=buffer.find("-",pos4+1);
+        size_t pos6=buffer.find("|",pos5+1);
+        Task T(stoi(buffer.substr(0,pos1)),buffer.substr(pos1+1,pos2-pos1-1),buffer.substr(pos2+1,pos3-pos2-1),stoi(buffer.substr(pos3+1,pos4-pos3-1)),stoi(buffer.substr(pos4+1,pos5-pos4-1)),stoi(buffer.substr(pos5+1,pos6-pos5-1)),buffer.substr(pos6+1));
+        p.push_back(T);
+    }
+    fin.close();
+
+
+
+
+
     this->setFixedSize(900,700);
     //按钮connect
     ui->setupUi(this);
@@ -22,14 +49,6 @@ Widget::Widget(QWidget *parent)
     connect(btn3,&QPushButton::clicked,this,&Widget::finish);
     QPushButton * btn4=new QPushButton("删除任务",this);
     connect(btn4,&QPushButton::clicked,this,&Widget::delete_);
-
-
-
-
-
-
-
-
     QPushButton * btn5=new QPushButton("退出",this);
     connect(btn5,&QPushButton::clicked,this,&Widget::close);
 
@@ -45,40 +64,67 @@ Widget::Widget(QWidget *parent)
     btn5->move(225,500);
 }
 
+
+int Widget::if_existed(int x)
+{
+    for (int i=0;i<p.size();i++)
+    {
+        if (x==p[i].get_number())
+        {
+            qDebug()<<x<<" has existed";
+            return 0;
+        }
+    }
+    return 1;
+}
+
+//按钮功能实现
 void Widget::getTask()
 {
+    ofstream fout("text.txt",ios::app);
+    if (fout.is_open()==false)
+    {
+        qDebug()<<"打开文件"<<"text.txt"<<"失败";
+        return;
+    }
     int ID;
-    QString subject;
-    QString content;
-    QString status;
-    QString data;
+    string subject;
+    string content;
+    string status;
+    string data;
     bool ok;
     int i = QInputDialog::getInt(this, tr("添加任务"),
                                  tr("任务ID:"), 1, 1, 100000, 1, &ok);
     if (ok)
         ID=i;
-    QString s = QInputDialog::getText(this, tr("添加任务"),
-                                 tr("任务学科:"), QLineEdit::Normal,QDir::home().dirName(), &ok);
+    string s = QInputDialog::getText(this, tr("添加任务"),
+                                     tr("任务学科:"), QLineEdit::Normal,QDir::home().dirName(), &ok).toStdString();
     if (ok)
         subject=s;
-    QString c = QInputDialog::getMultiLineText(this, tr("添加任务"),
-                                 tr("任务内容:"),"null", &ok);
+    string c = QInputDialog::getMultiLineText(this, tr("添加任务"),
+                                     tr("任务内容:"),"null", &ok).toStdString();
     if (ok)
         content=c;
-    QString st = QInputDialog::getText(this, tr("添加任务"),
-                                 tr("任务状态:"),QLineEdit::Normal,QDir::home().dirName(), &ok);
+    string st = QInputDialog::getText(this, tr("添加任务"),
+                                     tr("任务状态:"),QLineEdit::Normal,QDir::home().dirName(), &ok).toStdString();
     if (ok)
         status=st;
-    QString d = QInputDialog::getMultiLineText(this, tr("添加任务"),
-                                 tr("任务截止:"),"2007-8-17", &ok);
-     if (ok)
-         data=d;
-     QStringList list=data.split(u'-');
-     int year=list[0].toInt();
-     int month=list[1].toInt();
-     int day=list[2].toInt();
-     Task t(ID,subject,content,year,month,day,status);
-     p.push_back(t);
+    string d = QInputDialog::getMultiLineText(this, tr("添加任务"),
+                                     tr("任务截止:"),"2007-8-17", &ok).toStdString();
+    if (ok)
+        data=d;
+    if(if_existed(i))
+    {
+        size_t pos1=data.find("-");
+        size_t pos2=data.find("-");
+        int year=stoi(data.substr(0,pos1));
+        int month=stoi(data.substr(pos1+1,pos2-pos1-1));
+        int day=stoi(data.substr(pos2+1));
+        Task t(ID,subject,content,year,month,day,status);
+        p.push_back(t);
+        fout<<t.get_number()<<"|"<<t.get_subject()<<"|"<<t.get_content()<<"|"<<t.get_year()<<"-"<<t.get_month()<<"-"<<t.get_day()<<"|"<<t.get_status();
+    }
+    fout.close();
 
 }
 
@@ -97,6 +143,12 @@ void Widget::finish()
                                    tr("完成的任务ID："),1,1,100000,1,&ok);
     if (ok)
         p[num-1].complete();
+    ofstream out("text.txt");
+    for (int i=0;i<p.size();i++)
+    {
+        out<<p[i].get_number()<<"|"<<p[i].get_subject()<<"|"<<p[i].get_content()<<"|"<<p[i].get_year()<<"-"<<p[i].get_month()<<"-"<<p[i].get_day()<<"|"<<p[i].get_status();
+    }
+    out.close();
 
 }
 
@@ -107,6 +159,12 @@ void Widget::delete_()
                                    tr("删除的任务ID："),1,1,100000,1,&ok);
     if (ok)
         p.removeAt(num-1);
+    ofstream out("text.txt");
+    for (int i=0;i<p.size();i++)
+    {
+        out<<p[i].get_number()<<"|"<<p[i].get_subject()<<"|"<<p[i].get_content()<<"|"<<p[i].get_year()<<"-"<<p[i].get_month()<<"-"<<p[i].get_day()<<"|"<<p[i].get_status();
+    }
+    out.close();
 
 }
 
